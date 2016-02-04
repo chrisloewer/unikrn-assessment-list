@@ -9,6 +9,11 @@ body {
 }
 
 /* line 11, ../sass/style.scss */
+h5 {
+  margin: 10px 0;
+}
+
+/* line 15, ../sass/style.scss */
 .section {
   max-width: 600px;
   min-height: 100px;
@@ -17,16 +22,36 @@ body {
   padding: 10px 20px;
 }
 
-/* line 19, ../sass/style.scss */
+/* line 25, ../sass/style.scss */
+.section.summary .info-block {
+  display: inline-block;
+  margin: 10px;
+}
+/* line 30, ../sass/style.scss */
+.section.summary .progress-bar {
+  height: 40px;
+  width: 90%;
+  margin: 10px auto;
+  border: 1px solid black;
+  background-color: #BBBBBB;
+}
+/* line 37, ../sass/style.scss */
+.section.summary .progress-bar .progress-completed {
+  height: 100%;
+  width: 50%;
+  background-color: #777777;
+}
+
+/* line 45, ../sass/style.scss */
 .section.list {
   min-height: 200px;
 }
-/* line 22, ../sass/style.scss */
+/* line 48, ../sass/style.scss */
 .section.list .list-container {
   width: 90%;
   margin: 10px auto;
 }
-/* line 26, ../sass/style.scss */
+/* line 52, ../sass/style.scss */
 .section.list .list-container .item {
   margin: 10px 0;
   padding: 10px;
@@ -34,11 +59,15 @@ body {
   text-align: left;
   cursor: pointer;
 }
-/* line 34, ../sass/style.scss */
+/* line 60, ../sass/style.scss */
 .section.list .list-container .item.selected {
   background-color: #777777;
 }
-/* line 39, ../sass/style.scss */
+/* line 64, ../sass/style.scss */
+.section.list .list-container#list_done {
+  text-decoration: line-through;
+}
+/* line 68, ../sass/style.scss */
 .section.list textarea {
   width: 90%;
   height: 60px;
@@ -46,7 +75,7 @@ body {
   resize: vertical;
 }
 
-/* line 47, ../sass/style.scss */
+/* line 76, ../sass/style.scss */
 .button {
   display: inline-block;
   padding: 15px 0;
@@ -58,12 +87,12 @@ body {
   cursor: pointer;
 }
 
-/* line 57, ../sass/style.scss */
+/* line 86, ../sass/style.scss */
 .button:hover {
   background-color: #999999;
 }
 
-/* line 60, ../sass/style.scss */
+/* line 89, ../sass/style.scss */
 .button:active {
   background-color: #777777;
 }

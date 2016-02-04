@@ -52,7 +52,7 @@ Observer.prototype.update = function(args) {
   }
 
   console.log('Generic Observer update called');
-  console.log(JSON.stringify(args));
+  // console.log(JSON.stringify(args));
 };
 
 
@@ -95,8 +95,10 @@ window.onload = function() {
   controller.attachObserver(twitterComponent);
   controller.attachObserver(storageComponent);
 
-  controller.updateObservers();
-
+  // get stored data, if any exists, otherwise load as normal
+  if( !storageComponent.updateController() ) {
+    controller.updateObservers();
+  }
 };
 
 
@@ -113,15 +115,6 @@ window.onload = function() {
     document.getElementById('add_button').addEventListener('click', addItem);
     document.getElementById('complete_button').addEventListener('click', completeItems);
   }
-
-
-  listComponent.updateController = function () {
-    var args = {
-      'completed': listComponent.completed,
-      'unCompleted': listComponent.unCompleted
-    };
-    controller.updateObservers(args);
-  };
 
 
   // Item Class
@@ -238,7 +231,7 @@ window.onload = function() {
   }
 
 
-  // Observer functions
+  // OBSERVER functions
   listComponent.toString = function () {
     return 'listComponent Observer';
   };
@@ -247,17 +240,111 @@ window.onload = function() {
     if (args === void 0) {
       args = {};
     }
-    console.log('listComponent Observer update called');
-    console.log(JSON.stringify(args));
+
+    // Update component to match observer's data
+    listComponent.unCompleted = args.unCompleted;
+    listComponent.completed = args.completed;
+
+    if(listComponent.unCompleted === void 0) {
+      listComponent.unCompleted = [];
+    }
+    if(listComponent.completed === void 0) {
+      listComponent.completed = [];
+    }
 
     init();
     displayItems();
+  };
+
+  listComponent.updateController = function () {
+    var args = {
+      'completed': listComponent.completed,
+      'unCompleted': listComponent.unCompleted
+    };
+    controller.updateObservers(args);
   };
 
 })();
 
 
 // ------------------------------------ STORAGE COMPONENT BEHAVIOR --------------------------- //
+
+(function() {
+
+  // OBSERVER functions
+  storageComponent.toString = function() {
+    return 'storageComponent Observer';
+  };
+
+  storageComponent.update = function(args) {
+    if (args === void 0) {
+      args = {};
+    }
+    console.log('storageComponent Observer update called');
+    // console.log(JSON.stringify(args));
+
+    // Write to storage - using local storage to persist data
+    localStorage.setItem('data', JSON.stringify(args));
+  };
+
+  // Used to let controller know stored values on load
+  storageComponent.updateController = function() {
+    try {
+      var data = JSON.parse(localStorage.getItem('data'));
+      if (data) {
+        controller.updateObservers(data);
+        return true;
+      }
+    }
+    catch (e) {
+      console.log('Could not get local storage: ' + e)
+    }
+
+    return false;
+  }
+
+})();
+
+
+// ------------------------------------ SUMMARY COMPONENT BEHAVIOR --------------------------- //
+
+(function () {
+
+  // OBSERVER functions
+  summaryComponent.toString = function () {
+    return 'summaryComponent Observer'
+  };
+
+  summaryComponent.update = function(args) {
+    if (args === void 0) {
+      args = {};
+    }
+    console.log('summaryComponent Observer update called');
+
+    var numCompleted = 0;
+    var numUnCompleted = 0;
+
+    if(args.completed !== void 0) {
+      numCompleted = args.completed.length;
+    }
+    if(args.unCompleted !== void 0) {
+      numUnCompleted = args.unCompleted.length;
+    }
+
+    document.getElementById('disp_completed').innerHTML = numCompleted + '';
+    document.getElementById('disp_uncompleted').innerHTML = numUnCompleted + '';
+
+    if((numCompleted + numUnCompleted) > 0) {
+      document.getElementById('completed_progress-bar').style.width =
+          (numCompleted / (numCompleted + numUnCompleted)) * 100 + '%';
+    }
+  };
+
+})();
+
+
+// ------------------------------------ TWITTER COMPONENT BEHAVIOR --------------------------- //
+
 
 
 
