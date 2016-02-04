@@ -3,13 +3,13 @@
 // ------------------------------------- OBSERVER STRUCTURE ---------------------------------------- //
 
 // SUBJECT BASE CLASS
-// Controller will expand on this
+// Controller will expand on this base
 function Subject () {
   this._observerList = [];
 }
 
 Subject.prototype.attachObserver = function(observer) {
-  console.log(observer + ' is now an observer of Subject');
+  // console.log(observer + ' is now an observer of Subject');
   this._observerList.push(observer);
 };
 
@@ -18,7 +18,7 @@ Subject.prototype.detachObserver = function(observer) {
   for (var i= 0; i<len; i++) {
     if (this._observerList[i] === observer) {
       this._observerList.splice(i,1);
-      console.log(observer + ' is no longer an observer of Subject');
+      // console.log(observer + ' is no longer an observer of Subject');
       return true;
     }
   }
@@ -60,7 +60,6 @@ Observer.prototype.update = function(args) {
 
 // Controller will serve as the central point of contact, updating components
 function Controller() {
-
   var subject = new Subject();
 
   this.attachObserver = function attachObserver(observer) {
@@ -79,6 +78,7 @@ function Controller() {
   };
 }
 
+
 // ------------------------------------- INITIALIZE PAGE -------------------------------------------- //
 
 var controller = new Controller();
@@ -88,8 +88,6 @@ var storageComponent = new Observer();
 var twitterComponent = new Observer();
 
 window.onload = function() {
-
-
   controller.attachObserver(listComponent);
   controller.attachObserver(summaryComponent);
   controller.attachObserver(twitterComponent);
@@ -122,14 +120,12 @@ window.onload = function() {
     document.getElementById('delete_button').addEventListener('click', removeItems);
   }
 
-
-  // Item Class
+  // ITEM BASE CLASS
   // each item is an entry on the to-do list
   function Item(content) {
     this.content = content;
     this.timeCreated = new Date().toGMTString();
   }
-
 
   function addItem() {
     var inputField = document.getElementById('list_textbox');
@@ -141,30 +137,30 @@ window.onload = function() {
     var item = new Item(inputField.value);
     listComponent.unCompleted.push(item);
 
+    inputField.value = '';
+
     listComponent.updateController();
-
   }
-
 
   function selectItem(item, event) {
     if(event.shiftKey && listComponent.selectStart !== null) {
       var allItems = item.parentNode.childNodes;
       var indexes = [];
 
-      // Get indexes of two items
+      // Get indexes of two end items
       for(var i=0; i<allItems.length; i++){
         if(allItems[i] === listComponent.selectStart || allItems[i] === item) {
           indexes.push(i);
         }
       }
 
-      // clear all selected items
+      // clear all previously selected items
       while(listComponent.selected.length > 0) {
         var itm = listComponent.selected.pop();
         removeClass(itm, 'selected');
       }
 
-      // Select appropriate items
+      // Select all items between 2 chosen items
       if(indexes[0] >= 0 && indexes[1] > 0) {
         for(var i=indexes[0]; i<= indexes[1]; i++) {
           listComponent.selected.push(allItems[i]);
@@ -181,16 +177,17 @@ window.onload = function() {
         // Don't select
         listComponent.selected.splice(listComponent.selected.indexOf(item), 1);
         listComponent.selectStart = null;
+        removeClass(item, 'selected');
       }
       else {
         // Select
         listComponent.selected.push(item);
         listComponent.selectStart = item;
+        addClass(item, 'selected');
       }
-      toggleClass(item, 'selected');
     }
     else {
-      // Check whether item should be selected or clear selection
+      // Check whether item should be selected,  otherwise clear selection
       var selectFlag = true;
       if (listComponent.selected.indexOf(item) >= 0 && listComponent.selected.length == 1) {
         // Don't select
@@ -218,20 +215,20 @@ window.onload = function() {
       var allItems = item.parentNode.childNodes;
       var indexes = [];
 
-      // Get indexes of two items
+      // Get indexes of two end items
       for(var i=0; i<allItems.length; i++){
         if(allItems[i] === listComponent.selectCompleteStart || allItems[i] === item) {
           indexes.push(i);
         }
       }
 
-      // clear all selected items
+      // clear all previously selected items
       while(listComponent.selectedComplete.length > 0) {
         var itm = listComponent.selectedComplete.pop();
         removeClass(itm, 'selected');
       }
 
-      // Select appropriate items
+      // Select items between two end points
       if(indexes[0] >= 0 && indexes[1] > 0) {
         for(var i=indexes[0]; i<= indexes[1]; i++) {
           listComponent.selectedComplete.push(allItems[i]);
@@ -257,7 +254,7 @@ window.onload = function() {
       toggleClass(item, 'selected');
     }
     else {
-      // Check whether item should be selected or clear selection
+      // Check whether item should be selected, otherwise clear selection
       var selectFlag = true;
       if (listComponent.selectedComplete.indexOf(item) >= 0 && listComponent.selectedComplete.length == 1) {
         // Don't Select
@@ -279,8 +276,6 @@ window.onload = function() {
       }
     }
   }
-
-
 
   // Mark selected items as Complete
   function completeItems() {
@@ -365,7 +360,7 @@ window.onload = function() {
     removeChildNodes(document.getElementById('list_todo'));
     removeChildNodes(document.getElementById('list_done'));
 
-
+    // display tasks that still need to be done
     for (var i = 0; i < listComponent.unCompleted.length; i++) {
       var item = listComponent.unCompleted[i];
 
@@ -387,7 +382,7 @@ window.onload = function() {
         selectItem(this, event);
       }
     }
-
+    // display tasks that have already been completed
     for (var i = 0; i < listComponent.completed.length; i++) {
       var item = listComponent.completed[i];
 
@@ -422,9 +417,9 @@ window.onload = function() {
       args = {};
     }
 
-    console.log('listComponent Observer update called');
+    // console.log('listComponent Observer update called');
 
-    // Update component to match observer's data
+    // Update component data to match controller's data
     listComponent.unCompleted = args.unCompleted;
     listComponent.completed = args.completed;
     listComponent.timeCompleted = args.timeCompleted;
@@ -436,6 +431,7 @@ window.onload = function() {
       listComponent.completed = [];
     }
 
+    // Put updates into effect
     init();
     displayItems();
   };
@@ -465,14 +461,14 @@ window.onload = function() {
     if (args === void 0) {
       args = {};
     }
-    console.log('storageComponent Observer update called');
-    // console.log(JSON.stringify(args));
+    // console.log('storageComponent Observer update called');
 
     // Write to storage - using local storage to persist data
+    // In a deployed application, this would be a database
     localStorage.setItem('data', JSON.stringify(args));
   };
 
-  // Used to let controller know stored values on load
+  // Used to let controller know stored values
   storageComponent.updateController = function() {
     try {
       var data = JSON.parse(localStorage.getItem('data'));
@@ -504,7 +500,7 @@ window.onload = function() {
     if (args === void 0) {
       args = {};
     }
-    console.log('summaryComponent Observer update called');
+    // console.log('summaryComponent Observer update called');
 
     var numCompleted = 0;
     var numUnCompleted = 0;
@@ -544,7 +540,7 @@ window.onload = function() {
     if (args === void 0) {
       args = {};
     }
-    console.log('twitterComponent Observer update called');
+    // console.log('twitterComponent Observer update called');
 
     var numCompleted = 0;
     var numUnCompleted = 0;
@@ -561,13 +557,14 @@ window.onload = function() {
     }
 
     var progressUpdate = 'I have completed ' + numCompleted + ' tasks out of ' + (numCompleted+numUnCompleted) + '!!';
+    var timeUpdate = '';
     if(timeCompleted !== null) {
-      progressUpdate += ' My last task completed was at ' + timeCompleted;
+      timeUpdate = 'My last task completed was at ' + timeCompleted;
     }
 
-    document.getElementById('progress_quote').innerHTML = progressUpdate;
+    document.getElementById('progress_quote').innerHTML = progressUpdate + '<br/>' + timeUpdate;
     document.getElementById('twitter_button').onclick = function() {
-      var link = 'http://twitter.com/home?status=' + encodeURI(progressUpdate);
+      var link = 'http://twitter.com/home?status=' + encodeURI(progressUpdate +'\n' + timeUpdate);
       window.open(link, '_blank');
     };
 
@@ -610,4 +607,3 @@ function removeChildNodes(element) {
     element.removeChild(element.firstChild);
   }
 }
-

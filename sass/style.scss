@@ -12,6 +12,14 @@ body {
   user-select: none;
 }
 
+h1 {
+  font-size: 48px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
 h5 {
   margin: 10px 0;
 }
@@ -47,7 +55,6 @@ h5 {
 }
 
 .section.list {
-  min-height: 200px;
 
   .list-container {
     width: 90%;
@@ -73,15 +80,25 @@ h5 {
     width: 90%;
     height: 60px;
     max-height: 200px;
+    padding: 10px;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 300;
     resize: vertical;
+  }
+}
+
+.section.twitter {
+
+  .progress-quote {
+    margin-top: 20px;
   }
 }
 
 .button {
   display: inline-block;
-  padding: 15px 0;
+  padding: 10px 0;
   margin: 20px;
-  width: 100px;
+  width: 80px;
   border: 1px solid black;
   border-radius: 15px;
   background-color: #BBBBBB;
