@@ -110,10 +110,13 @@ window.onload = function() {
   listComponent.unCompleted = [];
   listComponent.completed = [];
   listComponent.selected = [];
+  listComponent.selectedComplete = [];
 
   function init() {
     document.getElementById('add_button').addEventListener('click', addItem);
     document.getElementById('complete_button').addEventListener('click', completeItems);
+    document.getElementById('redo_button').addEventListener('click', redoItems);
+    document.getElementById('delete_button').addEventListener('click', removeItems);
   }
 
 
@@ -141,19 +144,73 @@ window.onload = function() {
   }
 
 
-  function selectItem(item) {
-    if (listComponent.selected.indexOf(item) >= 0) {
-      listComponent.selected.splice(listComponent.selected.indexOf(item), 1);
+  function selectItem(item, event) {
+    if(event.ctrlKey) {
+      if (listComponent.selected.indexOf(item) >= 0) {
+        listComponent.selected.splice(listComponent.selected.indexOf(item), 1);
+      }
+      else {
+        listComponent.selected.push(item);
+      }
+      toggleClass(item, 'selected');
     }
     else {
-      listComponent.selected.push(item);
+      // Check whether item should be selected or clear selection
+      var selectFlag = true;
+      if (listComponent.selected.indexOf(item) >= 0 && listComponent.selected.length == 1) {
+        selectFlag = false;
+      }
+
+      // clear all selected items
+      while(listComponent.selected.length > 0) {
+        var itm = listComponent.selected.pop();
+        removeClass(itm, 'selected');
+      }
+
+      // add new item
+      if(selectFlag) {
+        listComponent.selected.push(item);
+        toggleClass(item, 'selected');
+      }
     }
-    toggleClass(item, 'selected');
+  }
+
+  // TODO Make this actually work
+  function selectCompletedItem(item, event) {
+    if(event.ctrlKey) {
+      if (listComponent.selectedComplete.indexOf(item) >= 0) {
+        listComponent.selectedComplete.splice(listComponent.selectedComplete.indexOf(item), 1);
+      }
+      else {
+        listComponent.selectedComplete.push(item);
+      }
+      toggleClass(item, 'selected');
+    }
+    else {
+      // Check whether item should be selected or clear selection
+      var selectFlag = true;
+      if (listComponent.selectedComplete.indexOf(item) >= 0 && listComponent.selectedComplete.length == 1) {
+        selectFlag = false;
+      }
+
+      // clear all selected items
+      while(listComponent.selectedComplete.length > 0) {
+        var itm = listComponent.selectedComplete.pop();
+        removeClass(itm, 'selected');
+      }
+
+      // add new item
+      if(selectFlag) {
+        listComponent.selectedComplete.push(item);
+        toggleClass(item, 'selected');
+      }
+    }
   }
 
 
-  function completeItems() {
 
+  // Mark selected items as Complete
+  function completeItems() {
     for (var i = 0; i < listComponent.selected.length; i++) {
       var itemJson = JSON.parse(listComponent.selected[i].dataset.item);
 
@@ -161,7 +218,6 @@ window.onload = function() {
       for (var j = 0; j < listComponent.unCompleted.length; j++) {
         if (listComponent.unCompleted[j].content == itemJson.content
             && listComponent.unCompleted[j].timeCreated == itemJson.timeCreated) {
-          console.log('Great Success');
 
           var item = listComponent.unCompleted[j];
           listComponent.completed.push(item);
@@ -170,9 +226,61 @@ window.onload = function() {
         }
       }
     }
-
     listComponent.updateController();
+  }
 
+  // Mark selected items as Not Complete
+  function redoItems() {
+    for (var i = 0; i < listComponent.selectedComplete.length; i++) {
+      var itemJson = JSON.parse(listComponent.selectedComplete[i].dataset.item);
+
+      // Find completed item that matches
+      for (var j = 0; j < listComponent.completed.length; j++) {
+        if (listComponent.completed[j].content == itemJson.content
+            && listComponent.completed[j].timeCreated == itemJson.timeCreated) {
+
+          var item = listComponent.completed[j];
+          listComponent.unCompleted.push(item);
+          listComponent.completed.splice(j, 1);
+          break;
+        }
+      }
+    }
+    listComponent.updateController();
+  }
+
+  // delete selected items - both completed and uncompleted
+  function removeItems() {
+
+    // uncompleted items
+    for (var i = 0; i < listComponent.selected.length; i++) {
+      var itemJson = JSON.parse(listComponent.selected[i].dataset.item);
+
+      // Find uncompleted item that matches
+      for (var j = 0; j < listComponent.unCompleted.length; j++) {
+        if (listComponent.unCompleted[j].content == itemJson.content
+            && listComponent.unCompleted[j].timeCreated == itemJson.timeCreated) {
+
+          listComponent.unCompleted.splice(j, 1);
+          break;
+        }
+      }
+    }
+    // completed items
+    for (var i = 0; i < listComponent.selectedComplete.length; i++) {
+      var itemJson = JSON.parse(listComponent.selectedComplete[i].dataset.item);
+
+      // Find completed item that matches
+      for (var j = 0; j < listComponent.completed.length; j++) {
+        if (listComponent.completed[j].content == itemJson.content
+            && listComponent.completed[j].timeCreated == itemJson.timeCreated) {
+
+          listComponent.completed.splice(j, 1);
+          break;
+        }
+      }
+    }
+    listComponent.updateController();
   }
 
   // Add items to page visible
@@ -201,7 +309,7 @@ window.onload = function() {
       listContainer.insertBefore(itemDiv, listContainer.childNodes[0]);
 
       itemDiv.onclick = function () {
-        selectItem(this);
+        selectItem(this, event);
       }
     }
 
@@ -224,7 +332,7 @@ window.onload = function() {
       listContainer.insertBefore(itemDiv, listContainer.childNodes[0]);
 
       itemDiv.onclick = function () {
-        selectItem(this);
+        selectCompletedItem(this, event);
       }
     }
 
@@ -337,6 +445,9 @@ window.onload = function() {
     if((numCompleted + numUnCompleted) > 0) {
       document.getElementById('completed_progress-bar').style.width =
           (numCompleted / (numCompleted + numUnCompleted)) * 100 + '%';
+    }
+    else {
+      document.getElementById('completed_progress-bar').style.width = '50%';
     }
   };
 
