@@ -90,8 +90,8 @@ var twitterComponent = new Observer();
 window.onload = function() {
 
 
-  controller.attachObserver(summaryComponent);
   controller.attachObserver(listComponent);
+  controller.attachObserver(summaryComponent);
   controller.attachObserver(twitterComponent);
   controller.attachObserver(storageComponent);
 
@@ -113,6 +113,7 @@ window.onload = function() {
   listComponent.selectedComplete = [];
   listComponent.selectStart = null;
   listComponent.selectCompleteStart = null;
+  listComponent.timeCompleted = null;
 
   function init() {
     document.getElementById('add_button').addEventListener('click', addItem);
@@ -124,10 +125,9 @@ window.onload = function() {
 
   // Item Class
   // each item is an entry on the to-do list
-  function Item(content, completed) {
+  function Item(content) {
     this.content = content;
     this.timeCreated = new Date().toGMTString();
-    this.timeCompleted = null;
   }
 
 
@@ -138,7 +138,7 @@ window.onload = function() {
       return false;
     }
 
-    var item = new Item(inputField.value, false);
+    var item = new Item(inputField.value);
     listComponent.unCompleted.push(item);
 
     listComponent.updateController();
@@ -295,6 +295,8 @@ window.onload = function() {
           var item = listComponent.unCompleted[j];
           listComponent.completed.push(item);
           listComponent.unCompleted.splice(j, 1);
+
+          listComponent.timeCompleted = new Date().toGMTString();
           break;
         }
       }
@@ -386,7 +388,6 @@ window.onload = function() {
       }
     }
 
-
     for (var i = 0; i < listComponent.completed.length; i++) {
       var item = listComponent.completed[i];
 
@@ -408,7 +409,6 @@ window.onload = function() {
         selectCompletedItem(this, event);
       }
     }
-
   }
 
 
@@ -422,9 +422,12 @@ window.onload = function() {
       args = {};
     }
 
+    console.log('listComponent Observer update called');
+
     // Update component to match observer's data
     listComponent.unCompleted = args.unCompleted;
     listComponent.completed = args.completed;
+    listComponent.timeCompleted = args.timeCompleted;
 
     if(listComponent.unCompleted === void 0) {
       listComponent.unCompleted = [];
@@ -440,7 +443,8 @@ window.onload = function() {
   listComponent.updateController = function () {
     var args = {
       'completed': listComponent.completed,
-      'unCompleted': listComponent.unCompleted
+      'unCompleted': listComponent.unCompleted,
+      'timeCompleted': listComponent.timeCompleted
     };
     controller.updateObservers(args);
   };
@@ -529,7 +533,47 @@ window.onload = function() {
 
 // ------------------------------------ TWITTER COMPONENT BEHAVIOR --------------------------- //
 
+(function() {
 
+  // OBSERVER functions
+  twitterComponent.toString = function() {
+    return 'twitterComponent Observer';
+  };
+
+  twitterComponent.update = function(args) {
+    if (args === void 0) {
+      args = {};
+    }
+    console.log('twitterComponent Observer update called');
+
+    var numCompleted = 0;
+    var numUnCompleted = 0;
+    var timeCompleted = null;
+
+    if(args.completed !== void 0) {
+      numCompleted = args.completed.length;
+    }
+    if(args.unCompleted !== void 0) {
+      numUnCompleted = args.unCompleted.length;
+    }
+    if(args.timeCompleted !== void 0) {
+      timeCompleted = args.timeCompleted;
+    }
+
+    var progressUpdate = 'I have completed ' + numCompleted + ' tasks out of ' + (numCompleted+numUnCompleted) + '!!';
+    if(timeCompleted !== null) {
+      progressUpdate += ' My last task completed was at ' + timeCompleted;
+    }
+
+    document.getElementById('progress_quote').innerHTML = progressUpdate;
+    document.getElementById('twitter_button').onclick = function() {
+      var link = 'http://twitter.com/home?status=' + encodeURI(progressUpdate);
+      window.open(link, '_blank');
+    };
+
+  };
+
+})();
 
 
 // ------------------------------------ GENERAL UTILITIES ------------------------------------ //
