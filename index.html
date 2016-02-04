@@ -3,11 +3,44 @@
 <head>
   <title>//TODO List</title>
   <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,700' rel='stylesheet' type='text/css'>
   <script type="text/javascript" src="js/script.js"></script>
 
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+
+<h1>//TODO List</h1>
+
+<div class="section summary">
+  <h3>Summary</h3>
+</div>
+
+
+<div class="section list">
+  <h3>List</h3>
+
+  <textarea title="Add item to list" placeholder="// TODO here" id="list_textbox"></textarea>
+  <div class="button" onclick="addItem()">Add</div>
+
+  <br/>
+
+  <div class="button">Finish</div>
+  <div class="button">Delete</div>
+
+
+  <h4>//TODO</h4>
+  <div class="list-container" id="list_todo"></div>
+
+  <h4>Done</h4>
+  <div class="list-container" id="list_done"></div>
+</div>
+
+
+<div class="section twitter">
+  <h3>Twitter</h3>
+</div>
 
 </body>
 </html>
