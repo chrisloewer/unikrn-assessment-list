@@ -6,14 +6,18 @@ body {
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 300;
   min-width: 300px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-/* line 11, ../sass/style.scss */
+/* line 15, ../sass/style.scss */
 h5 {
   margin: 10px 0;
 }
 
-/* line 15, ../sass/style.scss */
+/* line 19, ../sass/style.scss */
 .section {
   max-width: 600px;
   min-height: 100px;
@@ -22,12 +26,12 @@ h5 {
   padding: 10px 20px;
 }
 
-/* line 25, ../sass/style.scss */
+/* line 29, ../sass/style.scss */
 .section.summary .info-block {
   display: inline-block;
   margin: 10px;
 }
-/* line 30, ../sass/style.scss */
+/* line 34, ../sass/style.scss */
 .section.summary .progress-bar {
   height: 20px;
   width: 90%;
@@ -35,23 +39,23 @@ h5 {
   border: 1px solid black;
   background-color: #BBBBBB;
 }
-/* line 37, ../sass/style.scss */
+/* line 41, ../sass/style.scss */
 .section.summary .progress-bar .progress-completed {
   height: 100%;
   width: 50%;
   background-color: #777777;
 }
 
-/* line 45, ../sass/style.scss */
+/* line 49, ../sass/style.scss */
 .section.list {
   min-height: 200px;
 }
-/* line 48, ../sass/style.scss */
+/* line 52, ../sass/style.scss */
 .section.list .list-container {
   width: 90%;
   margin: 10px auto;
 }
-/* line 52, ../sass/style.scss */
+/* line 56, ../sass/style.scss */
 .section.list .list-container .item {
   margin: 10px 0;
   padding: 10px;
@@ -59,15 +63,15 @@ h5 {
   text-align: left;
   cursor: pointer;
 }
-/* line 60, ../sass/style.scss */
+/* line 64, ../sass/style.scss */
 .section.list .list-container .item.selected {
   background-color: #777777;
 }
-/* line 64, ../sass/style.scss */
+/* line 68, ../sass/style.scss */
 .section.list .list-container#list_done {
   text-decoration: line-through;
 }
-/* line 68, ../sass/style.scss */
+/* line 72, ../sass/style.scss */
 .section.list textarea {
   width: 90%;
   height: 60px;
@@ -75,7 +79,7 @@ h5 {
   resize: vertical;
 }
 
-/* line 76, ../sass/style.scss */
+/* line 80, ../sass/style.scss */
 .button {
   display: inline-block;
   padding: 15px 0;
@@ -87,12 +91,12 @@ h5 {
   cursor: pointer;
 }
 
-/* line 86, ../sass/style.scss */
+/* line 90, ../sass/style.scss */
 .button:hover {
   background-color: #999999;
 }
 
-/* line 89, ../sass/style.scss */
+/* line 93, ../sass/style.scss */
 .button:active {
   background-color: #777777;
 }

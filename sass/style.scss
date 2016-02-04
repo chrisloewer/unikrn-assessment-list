@@ -6,6 +6,10 @@ body {
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 300;
   min-width: 300px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 h5 {

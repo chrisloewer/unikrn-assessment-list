@@ -111,6 +111,8 @@ window.onload = function() {
   listComponent.completed = [];
   listComponent.selected = [];
   listComponent.selectedComplete = [];
+  listComponent.selectStart = null;
+  listComponent.selectCompleteStart = null;
 
   function init() {
     document.getElementById('add_button').addEventListener('click', addItem);
@@ -145,20 +147,15 @@ window.onload = function() {
 
 
   function selectItem(item, event) {
-    if(event.ctrlKey) {
-      if (listComponent.selected.indexOf(item) >= 0) {
-        listComponent.selected.splice(listComponent.selected.indexOf(item), 1);
-      }
-      else {
-        listComponent.selected.push(item);
-      }
-      toggleClass(item, 'selected');
-    }
-    else {
-      // Check whether item should be selected or clear selection
-      var selectFlag = true;
-      if (listComponent.selected.indexOf(item) >= 0 && listComponent.selected.length == 1) {
-        selectFlag = false;
+    if(event.shiftKey && listComponent.selectStart !== null) {
+      var allItems = item.parentNode.childNodes;
+      var indexes = [];
+
+      // Get indexes of two items
+      for(var i=0; i<allItems.length; i++){
+        if(allItems[i] === listComponent.selectStart || allItems[i] === item) {
+          indexes.push(i);
+        }
       }
 
       // clear all selected items
@@ -167,30 +164,65 @@ window.onload = function() {
         removeClass(itm, 'selected');
       }
 
-      // add new item
-      if(selectFlag) {
-        listComponent.selected.push(item);
-        toggleClass(item, 'selected');
+      // Select appropriate items
+      if(indexes[0] >= 0 && indexes[1] > 0) {
+        for(var i=indexes[0]; i<= indexes[1]; i++) {
+          listComponent.selected.push(allItems[i]);
+          addClass(allItems[i],'selected');
+        }
+      }
+      else if(indexes[0]) {
+        listComponent.selected.push(allItems[indexes[0]]);
+        addClass(allItems[indexes[0]],'selected');
       }
     }
-  }
-
-  // TODO Make this actually work
-  function selectCompletedItem(item, event) {
-    if(event.ctrlKey) {
-      if (listComponent.selectedComplete.indexOf(item) >= 0) {
-        listComponent.selectedComplete.splice(listComponent.selectedComplete.indexOf(item), 1);
+    else if(event.ctrlKey) {
+      if (listComponent.selected.indexOf(item) >= 0) {
+        // Don't select
+        listComponent.selected.splice(listComponent.selected.indexOf(item), 1);
+        listComponent.selectStart = null;
       }
       else {
-        listComponent.selectedComplete.push(item);
+        // Select
+        listComponent.selected.push(item);
+        listComponent.selectStart = item;
       }
       toggleClass(item, 'selected');
     }
     else {
       // Check whether item should be selected or clear selection
       var selectFlag = true;
-      if (listComponent.selectedComplete.indexOf(item) >= 0 && listComponent.selectedComplete.length == 1) {
+      if (listComponent.selected.indexOf(item) >= 0 && listComponent.selected.length == 1) {
+        // Don't select
         selectFlag = false;
+        listComponent.selectStart = null;
+      }
+
+      // clear all selected items
+      while(listComponent.selected.length > 0) {
+        var itm = listComponent.selected.pop();
+        removeClass(itm, 'selected');
+      }
+
+      if(selectFlag) {
+        // Select
+        listComponent.selected.push(item);
+        toggleClass(item, 'selected');
+        listComponent.selectStart = item;
+      }
+    }
+  }
+
+  function selectCompletedItem(item, event) {
+    if(event.shiftKey && listComponent.selectCompleteStart !== null) {
+      var allItems = item.parentNode.childNodes;
+      var indexes = [];
+
+      // Get indexes of two items
+      for(var i=0; i<allItems.length; i++){
+        if(allItems[i] === listComponent.selectCompleteStart || allItems[i] === item) {
+          indexes.push(i);
+        }
       }
 
       // clear all selected items
@@ -199,10 +231,51 @@ window.onload = function() {
         removeClass(itm, 'selected');
       }
 
-      // add new item
+      // Select appropriate items
+      if(indexes[0] >= 0 && indexes[1] > 0) {
+        for(var i=indexes[0]; i<= indexes[1]; i++) {
+          listComponent.selectedComplete.push(allItems[i]);
+          addClass(allItems[i],'selected');
+        }
+      }
+      else if(indexes[0]) {
+        listComponent.selectedComplete.push(allItems[indexes[0]]);
+        addClass(allItems[indexes[0]],'selected');
+      }
+    }
+    else if(event.ctrlKey) {
+      if (listComponent.selectedComplete.indexOf(item) >= 0) {
+        // Don't select
+        listComponent.selectedComplete.splice(listComponent.selectedComplete.indexOf(item), 1);
+        listComponent.selectCompleteStart = null;
+      }
+      else {
+        // Select
+        listComponent.selectedComplete.push(item);
+        listComponent.selectCompleteStart = item;
+      }
+      toggleClass(item, 'selected');
+    }
+    else {
+      // Check whether item should be selected or clear selection
+      var selectFlag = true;
+      if (listComponent.selectedComplete.indexOf(item) >= 0 && listComponent.selectedComplete.length == 1) {
+        // Don't Select
+        selectFlag = false;
+        listComponent.selectCompleteStart = null;
+      }
+
+      // clear all selected items
+      while(listComponent.selectedComplete.length > 0) {
+        var itm = listComponent.selectedComplete.pop();
+        removeClass(itm, 'selected');
+      }
+
       if(selectFlag) {
+        // Select
         listComponent.selectedComplete.push(item);
         toggleClass(item, 'selected');
+        listComponent.selectCompleteStart = item;
       }
     }
   }
