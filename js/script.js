@@ -43,7 +43,7 @@ Subject.prototype.updateObservers = function(args) {
 function Observer() {}
 
 Observer.prototype.toString = function() {
-  return 'Observer';
+  return 'Basic Observer';
 };
 
 Observer.prototype.update = function(args) {
@@ -56,7 +56,7 @@ Observer.prototype.update = function(args) {
 };
 
 
-// ------------------------------------- IMPLEMENTATION ---------------------------------------------- //
+// -------------------------------------  OBSERVER IMPLEMENTATION ------------------------------------- //
 
 // Controller will serve as the central point of contact, updating components
 function Controller() {
@@ -79,82 +79,186 @@ function Controller() {
   };
 }
 
-// Initialize Components
+// ------------------------------------- INITIALIZE PAGE -------------------------------------------- //
+
 var controller = new Controller();
 var summaryComponent = new Observer();
 var listComponent = new Observer();
 var storageComponent = new Observer();
 var twitterComponent = new Observer();
 
+window.onload = function() {
 
 
-// ------------------------------------- LIST FUNCTIONALITY ----------------------------------------- //
+  controller.attachObserver(summaryComponent);
+  controller.attachObserver(listComponent);
+  controller.attachObserver(twitterComponent);
+  controller.attachObserver(storageComponent);
 
-// ------------------------------------- LIST OBSERVER BEHAVIOR ------------------------------------- //
+  controller.updateObservers();
 
-listComponent.unCompleted = [];
-listComponent.completed = [];
-
-// Item Class
-// each item is an entry on the to-do list
-function Item(content, completed){
-  this.content = content;
-  this.completed = completed;
-  this.timeCreated = new Date();
-  this.timeCompleted = null;
-}
-
-
-function addItem() {
-  var inputField = document.getElementById('list_textbox');
-
-  if(inputField.value == '') { return false; }
-
-  var item = new Item(inputField.value, false);
-  listComponent.unCompleted.push(item);
-
-
-  // Add item to displayed list
-  var listContainer = document.getElementById('list_todo');
-
-  var itemDiv = document.createElement('div');
-  addClass(itemDiv, 'item');
-
-  var contentDiv = document.createElement('div');
-  addClass(contentDiv, 'content');
-  contentDiv.appendChild(document.createTextNode(item.content));
-
-  itemDiv.appendChild(contentDiv);
-  listContainer.insertBefore(itemDiv,listContainer.childNodes[0]);
-
-  itemDiv.addEventListener('click', function() { selectItem(itemDiv); });
-}
-
-function selectItem(item) {
-  toggleClass(item, 'selected');
-}
-
-
-
-// Observer functions
-listComponent.toString = function() {
-  return 'listComponent Observer';
 };
 
-listComponent.update = function(args) {
-  if(args === void 0) {
-    args = {};
+
+// ------------------------------------- LIST COMPONENT BEHAVIOR ------------------------------------ //
+
+(function () {
+
+  // Initialize
+  listComponent.unCompleted = [];
+  listComponent.completed = [];
+  listComponent.selected = [];
+
+  function init() {
+    document.getElementById('add_button').addEventListener('click', addItem);
+    document.getElementById('complete_button').addEventListener('click', completeItems);
   }
-  console.log('listComponent Observer update called');
-  console.log(JSON.stringify(args));
-};
 
 
+  listComponent.updateController = function () {
+    var args = {
+      'completed': listComponent.completed,
+      'unCompleted': listComponent.unCompleted
+    };
+    controller.updateObservers(args);
+  };
 
 
-controller.attachObserver(summaryComponent);
-controller.attachObserver(listComponent);
-controller.updateObservers({'from': 'twitter'});
+  // Item Class
+  // each item is an entry on the to-do list
+  function Item(content, completed) {
+    this.content = content;
+    this.timeCreated = new Date().toGMTString();
+    this.timeCompleted = null;
+  }
+
+
+  function addItem() {
+    var inputField = document.getElementById('list_textbox');
+
+    if (inputField.value == '') {
+      return false;
+    }
+
+    var item = new Item(inputField.value, false);
+    listComponent.unCompleted.push(item);
+
+    listComponent.updateController();
+
+  }
+
+
+  function selectItem(item) {
+    if (listComponent.selected.indexOf(item) >= 0) {
+      listComponent.selected.splice(listComponent.selected.indexOf(item), 1);
+    }
+    else {
+      listComponent.selected.push(item);
+    }
+    toggleClass(item, 'selected');
+  }
+
+
+  function completeItems() {
+
+    for (var i = 0; i < listComponent.selected.length; i++) {
+      var itemJson = JSON.parse(listComponent.selected[i].dataset.item);
+
+      // Find uncompleted item that matches
+      for (var j = 0; j < listComponent.unCompleted.length; j++) {
+        if (listComponent.unCompleted[j].content == itemJson.content
+            && listComponent.unCompleted[j].timeCreated == itemJson.timeCreated) {
+          console.log('Great Success');
+
+          var item = listComponent.unCompleted[j];
+          listComponent.completed.push(item);
+          listComponent.unCompleted.splice(j, 1);
+          break;
+        }
+      }
+    }
+
+    listComponent.updateController();
+
+  }
+
+  // Add items to page visible
+  function displayItems() {
+
+    // empty both lists
+    removeChildNodes(document.getElementById('list_todo'));
+    removeChildNodes(document.getElementById('list_done'));
+
+
+    for (var i = 0; i < listComponent.unCompleted.length; i++) {
+      var item = listComponent.unCompleted[i];
+
+      // Add item to displayed list
+      var listContainer = document.getElementById('list_todo');
+
+      var itemDiv = document.createElement('div');
+      addClass(itemDiv, 'item');
+      itemDiv.dataset.item = JSON.stringify(item);
+
+      var contentDiv = document.createElement('div');
+      addClass(contentDiv, 'content');
+      contentDiv.appendChild(document.createTextNode(item.content));
+
+      itemDiv.appendChild(contentDiv);
+      listContainer.insertBefore(itemDiv, listContainer.childNodes[0]);
+
+      itemDiv.onclick = function () {
+        selectItem(this);
+      }
+    }
+
+
+    for (var i = 0; i < listComponent.completed.length; i++) {
+      var item = listComponent.completed[i];
+
+      // Add item to displayed list
+      var listContainer = document.getElementById('list_done');
+
+      var itemDiv = document.createElement('div');
+      addClass(itemDiv, 'item');
+      itemDiv.dataset.item = JSON.stringify(item);
+
+      var contentDiv = document.createElement('div');
+      addClass(contentDiv, 'content');
+      contentDiv.appendChild(document.createTextNode(item.content));
+
+      itemDiv.appendChild(contentDiv);
+      listContainer.insertBefore(itemDiv, listContainer.childNodes[0]);
+
+      itemDiv.onclick = function () {
+        selectItem(this);
+      }
+    }
+
+  }
+
+
+  // Observer functions
+  listComponent.toString = function () {
+    return 'listComponent Observer';
+  };
+
+  listComponent.update = function (args) {
+    if (args === void 0) {
+      args = {};
+    }
+    console.log('listComponent Observer update called');
+    console.log(JSON.stringify(args));
+
+    init();
+    displayItems();
+  };
+
+})();
+
+
+// ------------------------------------ STORAGE COMPONENT BEHAVIOR --------------------------- //
+
 
 
 // ------------------------------------ GENERAL UTILITIES ------------------------------------ //
@@ -185,3 +289,10 @@ function toggleClass(element, className) {
     element.classList.add(className);
   }
 }
+
+function removeChildNodes(element) {
+  while(element.hasChildNodes()) {
+    element.removeChild(element.firstChild);
+  }
+}
+
